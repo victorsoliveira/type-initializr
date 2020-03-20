@@ -1,1 +1,1 @@
-"# Type Initializr" 
+# Type Initializr
