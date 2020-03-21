@@ -16,7 +16,7 @@ export class TypeInitialzr {
 
     public static init<K, T extends K>(ctor: new () => T, props: K, parent: CurrentParent | null = null): T {
         this.result = new ctor();
-        let decorations = this.getDecoratedProperties(this.result) ?? [];
+        const decorations = this.getDecoratedProperties(this.result) ?? [];
 
         if (parent) {
             parent.instance[parent.propName] = Object.assign(this.result, props);
@@ -33,10 +33,11 @@ export class TypeInitialzr {
 
     public static resolveDecoratedProperties<T, K>(metadataTypes: metadataType[], props: K, parent: T): any {
         Object.keys(props).forEach(p => {
-            if (metadataTypes.some(m => m.key == p)) {
-                let metadata = metadataTypes.find(mt => mt.key == p);
+            if (metadataTypes.some(m => m.key === p)) {
+                const metadata = metadataTypes.find(mt => mt.key === p);
+                const currentPrototype = metadata.type.prototype;
+
                 let currentParent = parent;
-                let currentPrototype = metadata.type.prototype;
 
                 if (metadata.context !== currentParent?.constructor.name) {
                     for (let key in parent) {
