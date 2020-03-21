@@ -2,7 +2,7 @@ export class TypeUtils {
     static isInitializable(type: any): boolean {
         if (type) {
             const typeName = this.getTypeName(type);
-            return !this.getWellKnownJsTypes().some(type => type.toLowerCase() === typeName?.toLowerCase());
+            return !this.getWellKnownJsTypes().some(t => t.toLowerCase() === typeName?.toLowerCase());
         }
         return false;
     }
