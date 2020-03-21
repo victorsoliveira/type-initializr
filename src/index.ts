@@ -1,88 +1,66 @@
-import 'reflect-metadata';
+import { TypeUtils } from './TypeUtils';
+import { registerProperty, metadataType, metadataKey } from './MetadataUtils';
 
-import { TypeUtils } from "./TypeUtils";
+type CurrentParent = { instance: any; propName: string };
 
-const metadataKey = Symbol('prop');
-type metadataType = {context: string, key: string, type: new()=>any, value: any};
-
-export function prop(className: new()=>any) {
-  function decorate(target: any, propertyKey: string): void {
-    return registerProperty(target, propertyKey, className);
-  }
-  return decorate;
+// Decorator Factory
+export function initialzr(className: new () => any) {
+    function decorate(target: any, propertyKey: string): void {
+        return registerProperty(target, propertyKey, className);
+    }
+    return decorate;
 }
-
-function registerProperty(target: object, propertyKey: string, className: new()=>any): void {
-  
-  let properties: metadataType[] = Reflect.getMetadata(metadataKey, target);
-
-  if (properties) {
-    properties.push({context: target.constructor.name, key: propertyKey, type: className, value: null});
-  } else {
-    properties = [{context: target.constructor.name, key: propertyKey, type: className , value: null}];
-    Reflect.defineMetadata(metadataKey, properties, target);
-  }
-}
-
-export type TypeInitialzrConfig = { overrideOnMatch: boolean; } | null;
-type DecotatedParent = { instance: any, propName: string };
 
 export class TypeInitialzr {
-	
-	#config: TypeInitialzrConfig;
-  result: any;
+    private static result: any;
 
-	constructor(private config: TypeInitialzrConfig = null){
-		this.#config = this.config ?? { overrideOnMatch: true };
-	}
+    public static init<K, T extends K>(ctor: new () => T, props: K, parent: CurrentParent | null = null): T {
+        this.result = new ctor();
+        let decorations = this.getDecoratedProperties(this.result) ?? [];
 
-	public init<K, T extends K>(ctor: new() => T, props: K, parent: DecotatedParent | null = null): T {
-
-    this.result = new ctor();
-    let decorations = this.getDecoratedProperties(this.result) ?? [];
-
-    if (parent) {
-      parent.instance[parent.propName] = Object.assign(this.result, props);
-    }
-
-    this.result = parent?.instance ?? Object.assign(this.result, props);
-    
-    if (decorations.length > 0) {
-      this.result = this.resolveDecoratedProperties(decorations, props, this.result);
-    }
-
-    return this.result as T;
-  }
-
-  private resolveDecoratedProperties<T,K>(metadata: metadataType[], props: K, parent: T): any {
-
-      metadata.forEach(m => {
-
-        if (Object.keys(props).some(p => p == m.key)) {
-
-          let currentParent = parent;
-          let currentPrototype = m.type.prototype;
-
-          if (m.context !== currentParent?.constructor.name) {
-            for(let key in parent) {
-              if(m.context === parent[key]?.constructor.name) {
-                currentParent = parent[key] as any;
-              }
-            }
-          }
-
-          if (TypeUtils.isInitializable(currentPrototype)) {
-            return this.init(currentPrototype.constructor, props[m.key], {instance: currentParent, propName: m.key});
-          }
+        if (parent) {
+            parent.instance[parent.propName] = Object.assign(this.result, props);
         }
-      });
 
-      return parent;
-  }
+        this.result = parent?.instance ?? Object.assign(this.result, props);
 
-  private getDecoratedProperties<T>(origin: T): metadataType[] {
-    const properties: metadataType[] = Reflect.getMetadata(metadataKey, origin);
-    properties?.forEach(p => p.value = origin[p.key]);
-    return properties;
-  }
+        if (decorations.length > 0) {
+            this.result = this.resolveDecoratedProperties(decorations, props, this.result);
+        }
+
+        return this.result as T;
+    }
+
+    public static resolveDecoratedProperties<T, K>(metadataTypes: metadataType[], props: K, parent: T): any {
+        Object.keys(props).forEach(p => {
+            if (metadataTypes.some(m => m.key == p)) {
+                let metadata = metadataTypes.find(mt => mt.key == p);
+                let currentParent = parent;
+                let currentPrototype = metadata.type.prototype;
+
+                if (metadata.context !== currentParent?.constructor.name) {
+                    for (let key in parent) {
+                        if (metadata.context === parent[key]?.constructor.name) {
+                            currentParent = parent[key] as any;
+                        }
+                    }
+                }
+
+                if (TypeUtils.isInitializable(currentPrototype)) {
+                    return this.init(currentPrototype.constructor, props[metadata.key], {
+                        instance: currentParent,
+                        propName: metadata.key,
+                    });
+                }
+            }
+        });
+
+        return parent;
+    }
+
+    private static getDecoratedProperties<T>(origin: T): metadataType[] {
+        const properties: metadataType[] = Reflect.getMetadata(metadataKey, origin);
+        properties?.forEach(p => (p.value = origin[p.key]));
+        return properties;
+    }
 }
