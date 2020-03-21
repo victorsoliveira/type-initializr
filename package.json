@@ -1,7 +1,7 @@
 {
     "name": "type-initializr",
     "version": "1.0.0",
-    "description": "A nice tool to initialize and instantiate typescript classes with or not default values",
+    "description": "Uma ferramenta interessante para inicializar e instanciar classes com ou sem valores padrões passados na construção",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "scripts": {
