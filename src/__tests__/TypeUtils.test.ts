@@ -1,4 +1,4 @@
-import { TypeUtils } from '../TypeUtils';
+import { TypeUtils } from '../utils/TypeUtils';
 
 class TypedClass {
     public prop: string = '';
@@ -9,7 +9,7 @@ const simpleObj = {};
 const text = '';
 const num = 10;
 const bool = true;
-const fn = (): void => {};
+const fn = (): void => { };
 
 test('wellKownJsTypes method must return 6 primitive types, object and function', () => {
     expect(TypeUtils.getWellKnownJsTypes()).toHaveLength(8);

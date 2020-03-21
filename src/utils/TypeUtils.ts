@@ -13,7 +13,7 @@ export class TypeUtils {
         );
     }
 
-    static getTypeName(prototype: any): string | undefined {
+    static getTypeName(prototype: any): string | undefined | null {
         return prototype?.constructor?.name;
     }
 }

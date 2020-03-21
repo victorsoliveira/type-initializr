@@ -1,22 +1,22 @@
-import { TypeUtils } from './TypeUtils';
-import { registerProperty, metadataType, metadataKey } from './MetadataUtils';
+import { TypeUtils } from './utils/TypeUtils';
+import { MetadataUtils, MetadataType } from './utils/MetadataUtils';
 
-type CurrentParent = { instance: any; propName: string };
+type ParentContext = { instance: any; propName: string };
 
-// Decorator Factory
 export function init(className: new () => any): (target: any, propertyKey: string) => void {
     function decorate(target: any, propertyKey: string): void {
-        return registerProperty(target, propertyKey, className);
+        return MetadataUtils.registerProperty(target, propertyKey, className);
     }
     return decorate;
 }
 
 export class TypeInitialzr {
+
     private static result: any;
 
-    public static init<K, T extends K>(ctor: new () => T, props: K, parent: CurrentParent | null = null): T {
+    public static init<K, T extends K>(ctor: new () => T, props: K, parent: ParentContext | null = null): T {
         this.result = new ctor();
-        const decorations = this.getDecoratedProperties(this.result) ?? [];
+        const decorations = MetadataUtils.getDecoratedProperties(this.result) ?? [];
 
         if (parent) {
             parent.instance[parent.propName] = Object.assign(this.result, props);
@@ -31,10 +31,12 @@ export class TypeInitialzr {
         return this.result as T;
     }
 
-    public static resolveDecoratedProperties<T, K>(metadataTypes: metadataType[], props: K, parent: T): any {
-        Object.keys(props).forEach(p => {
-            if (metadataTypes.some(m => m.key === p)) {
-                const metadata = metadataTypes.find(mt => mt.key === p);
+    private static resolveDecoratedProperties<T, K>(metadataTypes: MetadataType[], props: K, parent: T): any {
+
+        metadataTypes.forEach(metadata => {
+
+            if (Object.keys(props).some(p => p === metadata.key)) {
+
                 const currentPrototype = metadata.type.prototype;
 
                 let currentParent = parent;
@@ -54,14 +56,9 @@ export class TypeInitialzr {
                     });
                 }
             }
+
         });
 
         return parent;
-    }
-
-    private static getDecoratedProperties<T>(origin: T): metadataType[] {
-        const properties: metadataType[] = Reflect.getMetadata(metadataKey, origin);
-        properties?.forEach(p => (p.value = origin[p.key]));
-        return properties;
     }
 }
