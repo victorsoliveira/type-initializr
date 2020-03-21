@@ -11,9 +11,9 @@ export function init(className: new () => unknown): (target: object, propertyKey
 }
 
 export class TypeInitialzr {
-  private static result: unknown
+  private static result
 
-  public static init<K, T extends K>(ctor: new () => T, props: K, parent: ParentContext | null = null): unknown {
+  public static init<K, T extends K>(ctor: new () => T, props: K, parent: ParentContext | null = null): T {
     this.result = new ctor()
     const decorations = MetadataUtils.getDecoratedProperties(this.result) ?? []
 
@@ -27,7 +27,7 @@ export class TypeInitialzr {
       this.result = this.resolveDecoratedProperties(decorations, props, this.result)
     }
 
-    return this.result
+    return this.result as T
   }
 
   private static resolveDecoratedProperties<T, K>(metadataTypes: MetadataType[], props: K, parent: T): T {
