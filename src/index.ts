@@ -40,7 +40,7 @@ export class TypeInitialzr {
                 let currentParent = parent;
 
                 if (metadata.context !== currentParent?.constructor.name) {
-                    for (let key in parent) {
+                    for (const key in parent) {
                         if (metadata.context === parent[key]?.constructor.name) {
                             currentParent = parent[key] as any;
                         }
