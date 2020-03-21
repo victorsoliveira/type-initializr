@@ -4,7 +4,7 @@ import { registerProperty, metadataType, metadataKey } from './MetadataUtils';
 type CurrentParent = { instance: any; propName: string };
 
 // Decorator Factory
-export function init(className: new () => any) {
+export function init(className: new () => any): (target: any, propertyKey: string) => void {
     function decorate(target: any, propertyKey: string): void {
         return registerProperty(target, propertyKey, className);
     }
