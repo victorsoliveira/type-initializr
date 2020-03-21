@@ -1,4 +1,4 @@
-import { TypeInitialzr, initialzr } from '../index';
+import { TypeInitialzr, init } from '../index';
 
 class Y {
     public a: number;
@@ -11,8 +11,9 @@ class Y {
 class X {
     public a: number;
     public b: number;
-    @initialzr(Y)
-    public ipisulom: Y;
+
+    @init(Y) public ipisulom: Y;
+
     public plus() {
         return this.a + this.b;
     }
@@ -21,8 +22,8 @@ class X {
 class Bar {
     public value: string;
 
-    @initialzr(X)
-    public x: X;
+    @init(X) public x: X;
+
     public getValue(): string | undefined {
         return this.value;
     }
@@ -32,11 +33,8 @@ class Foo {
     public value: string;
     public another: string;
 
-    @initialzr(X)
-    public x: X;
-
-    @initialzr(Bar)
-    public bar: Bar;
+    @init(X) public x: X;
+    @init(Bar) public bar: Bar;
 
     public getValue(): string | undefined {
         return this.value;

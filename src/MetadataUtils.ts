@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-export const metadataKey = Symbol('initialzr');
+export const metadataKey = Symbol('init');
 
 export type metadataType = { context: string; key: string; type: new () => any; value: any };
 
