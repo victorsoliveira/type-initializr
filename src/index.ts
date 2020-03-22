@@ -14,7 +14,7 @@ export class TypeInitialzr {
   private static result
 
   /**
-   * Retorna uma nova instância do tipo TInstance carregada com o objeto anônimo do tipo K
+   * Retorna uma nova instância do tipo TInstance carregada com o objeto anônimo do tipo TPayload
    *
    * @param ctor - Tipo instânciável (classe) do tipo TInstance
    * @param payload - Objeto anônimo do tipo TPayload
