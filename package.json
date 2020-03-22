@@ -1,6 +1,6 @@
 {
     "name": "type-initializr",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Uma ferramenta para instanciar classes existentes baseasas em modelos com valores padrões",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
