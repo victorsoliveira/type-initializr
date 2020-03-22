@@ -20,12 +20,12 @@ export class TypeInitialzr {
    * @param payload - Objeto anônimo do tipo TPayload
    * @returns Instância do tipo TInstance carregada com as informações passadas no objeto anônimo do tipo TPayload
    *
-   * **/
-  public static init<TPayload, TInstance extends TPayload>(ctor: new () => TInstance, payload: TPayload): TInstance {
+   **/
+  public static init<TInstance extends TPayload, TPayload>(ctor: new () => TInstance, payload: TPayload): TInstance {
     return this.resolve(ctor, payload)
   }
 
-  private static resolve<P, T extends P>(ctor: new () => T, payload: P, parent: ParentContext | null = null): T {
+  private static resolve<T extends P, P>(ctor: new () => T, payload: P, parent: ParentContext | null = null): T {
     this.result = new ctor()
     const decorations = MetadataUtils.getDecoratedProperties(this.result) ?? []
 
@@ -36,7 +36,7 @@ export class TypeInitialzr {
     this.result = parent?.instance ?? Object.assign(this.result, payload)
 
     if (decorations.length > 0) {
-      this.result = this.resolveDecoratedProperties(decorations, payload, this.result)
+      this.result = this.resolveDecoratedProperties(decorations, payload, this.result as T)
     }
 
     return this.result as T
