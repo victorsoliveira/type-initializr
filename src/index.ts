@@ -13,26 +13,38 @@ export function init(className: new () => unknown): (target: object, propertyKey
 export class TypeInitialzr {
   private static result
 
-  public static init<K, T extends K>(ctor: new () => T, props: K, parent: ParentContext | null = null): T {
+  /**
+   * Retorna uma nova instância do tipo TInstance carregada com o objeto anônimo do tipo K
+   *
+   * @param ctor - Tipo instânciável (classe) do tipo TInstance
+   * @param payload - Objeto anônimo do tipo TPayload
+   * @returns Instância do tipo TInstance carregada com as informações passadas no objeto anônimo do tipo TPayload
+   *
+   * **/
+  public static init<TPayload, TInstance extends TPayload>(ctor: new () => TInstance, payload: TPayload): TInstance {
+    return this.resolve(ctor, payload)
+  }
+
+  private static resolve<P, T extends P>(ctor: new () => T, payload: P, parent: ParentContext | null = null): T {
     this.result = new ctor()
     const decorations = MetadataUtils.getDecoratedProperties(this.result) ?? []
 
     if (parent) {
-      parent.instance[parent.propName] = Object.assign(this.result, props)
+      parent.instance[parent.propName] = Object.assign(this.result, payload)
     }
 
-    this.result = parent?.instance ?? Object.assign(this.result, props)
+    this.result = parent?.instance ?? Object.assign(this.result, payload)
 
     if (decorations.length > 0) {
-      this.result = this.resolveDecoratedProperties(decorations, props, this.result)
+      this.result = this.resolveDecoratedProperties(decorations, payload, this.result)
     }
 
     return this.result as T
   }
 
-  private static resolveDecoratedProperties<T, K>(metadataTypes: MetadataType[], props: K, parent: T): T {
+  private static resolveDecoratedProperties<T, P>(metadataTypes: MetadataType[], payload: P, parent: T): T {
     metadataTypes.forEach(metadata => {
-      if (Object.keys(props).some(p => p === metadata.key)) {
+      if (Object.keys(payload).some(p => p === metadata.key)) {
         const currentPrototype = metadata.type.prototype
 
         let currentParent: unknown = parent
@@ -46,7 +58,7 @@ export class TypeInitialzr {
         }
 
         if (TypeUtils.isInitializable(currentPrototype)) {
-          return this.init(currentPrototype.constructor, props[metadata.key], {
+          return this.resolve(currentPrototype.constructor, payload[metadata.key], {
             instance: currentParent,
             propName: metadata.key,
           })

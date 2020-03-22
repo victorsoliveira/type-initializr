@@ -11,9 +11,15 @@ Com essa biblioteca conseguimos criar instâncias de classes no typescript, base
 
 
 ### Instalação
+
 Vamos lá, primeiramente você terá que instalar a biblioteca
 ```
 $ npm install type-initializr
+```
+
+Após instalada será só importar a classe onde será feita a utilização em seu código
+```
+import { TypeInitialzr } from 'type-initializr';
 ```
 
 ### Utilização
